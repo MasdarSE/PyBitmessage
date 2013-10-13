@@ -1577,15 +1577,6 @@ class MyForm(QtGui.QMainWindow):
                             "MainWindow", "Error: You must specify a From address. If you don\'t have one, go to the \'Your Identities\' tab."))
                     else:
                         toAddress = addBMIfNotPresent(toAddress)
-                        try:
-                            shared.config.get(toAddress, 'enabled')
-                            # The toAddress is one owned by me.
-                            if not shared.safeConfigGetBoolean(toAddress, 'chan'):
-                                QMessageBox.about(self, _translate("MainWindow", "Sending to your address"), _translate(
-                                    "MainWindow", "Error: One of the addresses to which you are sending a message, %1, is yours. Unfortunately the Bitmessage client cannot process its own messages. Please try running a second client on a different computer or within a VM.").arg(toAddress))
-                                continue
-                        except:
-                            pass
                         if addressVersionNumber > 4 or addressVersionNumber <= 1:
                             QMessageBox.about(self, _translate("MainWindow", "Address version number"), _translate(
                                 "MainWindow", "Concerning the address %1, Bitmessage cannot understand address version numbers of %2. Perhaps upgrade Bitmessage to the latest version.").arg(toAddress).arg(str(addressVersionNumber)))
@@ -3258,7 +3249,10 @@ def run():
     locale_lang = locale_countrycode[0:2]
     user_countrycode = str(shared.config.get('bitmessagesettings', 'userlocale'))
     user_lang = user_countrycode[0:2]
-    translation_path = "translations/bitmessage_"
+    try:
+        translation_path = os.path.join(sys._MEIPASS, "translations/bitmessage_")
+    except Exception, e:
+        translation_path = "translations/bitmessage_"
     
     if shared.config.get('bitmessagesettings', 'userlocale') == 'system':
         # try to detect the users locale otherwise fallback to English
